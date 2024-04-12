@@ -261,9 +261,16 @@ def med_review():
         drugs = request.form["drugs"]
         # turn drugs to list
         drugs = [drug.strip().lower() for drug in drugs.split(",")]
+
+        notes = request.form["notes"]
+        focus = request.form["focus"]
         # send question to GalenAI server
         url = f"{BASE_URL}/api/v1/create-med-review-streaming-channel/"
         payload = {"diseases": diseaes, "drugs": drugs}
+        if notes:
+            payload["notes"] = notes
+        if focus:
+            payload["focus"] = focus
         token = f"token {TOKEN}"
         headers = {"Authorization": token, "Content-Type": "application/json"}
         response = requests.post(url, json=payload, headers=headers)
