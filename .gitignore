@@ -7,10 +7,10 @@ dev.env
 .venv
 env/
 ga-str-venv/
+cl-demo-venv/
 ENV/
 env.bak/
 venv.bak/
-
 
 
 __pycache__/
