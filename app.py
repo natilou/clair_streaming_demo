@@ -3,7 +3,7 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# BASE_URL = "https://galenai.co" # use this for production
+# BASE_URL = "https://prod.askclair.ai" # use this for production
 
 # request access to a sandbox environment  by emailing support@mg.galenai.com
 BASE_URL = ""
@@ -212,14 +212,12 @@ def onlabel():
     if request.method == "POST":
         query = request.form["question"]  # get question from user
         drug_name = request.form["drug_name"]
-        collection_name = request.form["collection_name"]
 
         # send question to GalenAI server
         url = f"{BASE_URL}/api/v1/create-onlabel-streaming-channel/"
-        # it is best practice to always upload documents with a collection_name so you can easily retrieve them later
+
         payload = {
             "query": query,
-            "collection_name": collection_name,
             "drug_name": drug_name,
         }
 
