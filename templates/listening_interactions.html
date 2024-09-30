@@ -9,6 +9,7 @@
   <button onclick="start()">Start Listening</button>  <!-- button is here for illustration, should call start on window load-->
 <p id="error"> </p>
 <p id="answer"> Answer: </p>
+<p id="context">Context: </p>
 <p id="references"> References <br>  </p>
 
 
@@ -82,17 +83,21 @@
             document.getElementById(`${data.id}-description`).innerHTML += data.text;
         });
 
+        // context event
+        channel.bind("context", function (data) {
+            document.getElementById("context").innerHTML += data.text;
+        });
         
-
-        channel.bind("references", function (data) {
-            // make a div for title, doi, url, abstract inside references 
-            document.getElementById(`${data.id}-references`).innerHTML += "<div> title:" + data.title + "</div>";
+        // references event
+        channel.bind("references", function(data) {
+            document.getElementById("references").innerHTML += "<div> title:" + data.title + "</div>";
             if (data.doi != null) {
-            document.getElementById(`${data.id}-references`).innerHTML += "<div> doi:" + data.doi + "</div>";
-            document.getElementById(`${data.id}-references`).innerHTML += "<div> url:" + data.url + "</div>";
-            document.getElementById(`${data.id}-references`).innerHTML += "<div> abstract:" + data.abstract + "</div>";
+            document.getElementById("references").innerHTML += "<div> doi:" + data.doi + "</div>";
+            document.getElementById("references").innerHTML += "<div> url:" + data.url + "</div>";
+            document.getElementById("references").innerHTML += "<div> abstract:" + data.abstract + "</div>";
                 }   
-            });
+        });
+
 
         // end
         channel.bind("end", function (data) {

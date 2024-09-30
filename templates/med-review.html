@@ -17,11 +17,11 @@
     <p> Enter up to 10 codes separated by commas</p>
     --> 
     <label for="diseases">Medical Conditions:</label>
-    <input type="text" id="diseases" name="diseases" required placeholder="Diabetes, HTN">
+    <input type="text" id="diseases" name="diseases" placeholder="Diabetes, HTN">
     <p> Enter up to 10 diseases separated by commas</p>
     <br><br>
     <label for="drugs">Medications:</label>
-    <input type="text" id="drugs" name="drugs" required placeholder="liptior 10mg daily, norvasc 5mg daily">
+    <input type="text" id="drugs" name="drugs" placeholder="liptior 10mg daily, norvasc 5mg daily">
     <p> Enter up to 15 drugs separated by commas</p>
     <br><br>
     <!-- notes test field -->
@@ -31,11 +31,18 @@
     <!-- focus -->
     <label for="focus">Focus:</label>
     <select id="focus" name="focus">
+      <option value="" selected disabled>Select an option</option>
       <option value="HIV">HIV</option> 
       <option value="Sickle Cell">Sickle Cell</option>
       <option value="Bipolar Disorder">Bipolar Disorder</option>
       <option value="Depression">Depression</option>
       <option value="Schizophrenia">Schizophrenia</option>
+    </select>
+    <br><br>
+    <!-- patient case -->
+    <label for="patient_case">Patient case:</label>
+    <textarea id="patient_case" name="patient_case" rows="4" cols="50" placeholder="Patient with a history of Diabetes Mellitus and on the following medications: Metformina one daily 100"></textarea>
+    <br><br>
     <input type="submit" value="Submit">
   </form>
 </body>

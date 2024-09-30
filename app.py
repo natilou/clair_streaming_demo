@@ -6,7 +6,7 @@ app = Flask(__name__)
 # BASE_URL = "https://prod.askclair.ai" # use this for production
 
 # request access to a sandbox environment  by emailing support@mg.galenai.com
-BASE_URL = ""
+BASE_URL = ""  # "http://localhost:8001" for local testing
 
 # request a free test token by emailing support@mg.galenai.com
 TOKEN = ""
@@ -19,10 +19,19 @@ def home():
 
         # send question to GalenAI server
         url = f"{BASE_URL}/api/v1/get-clinical-query-streaming-channel/"
+        
+        # Check if the clinical summary mode checkbox is checked
+        clinical_summary_mode = request.form.get("clinical_summary_mode") == "on"
+        # Create the payload. Add "clinical_summary_mode" only if it's True
         payload = {"query": query}
-        # payload = {"query": query, "clinical_summary_mode": True} for clinical summary mode
+        if clinical_summary_mode:
+            payload["clinical_summary_mode"] = True
+
         token = f"token {TOKEN}"  # your token here
         headers = {"Authorization": token, "Content-Type": "application/json"}
+        if not TOKEN:
+            # get limited response
+            headers = {"Content-Type": "application/json"}
         response = requests.post(url, json=payload, headers=headers)
         # by default, GalenAI will not process queries outside of scope of the model.
         if response.status_code != 200:
@@ -35,6 +44,7 @@ def home():
         # once the query is finished streaming, you can retrieve the full details via this query_id
         # Save this in your DB to retrieve the full details later
         query_id = response.json()["query_id"]
+        is_truncated = response.json()["is_truncated"]
 
         # client will call ready to listen endpoint, then listen to the SSE as they become ready
         return render_template(
@@ -42,6 +52,8 @@ def home():
             channel_name=channel_name,
             query_id=query_id,
             base_url=BASE_URL,
+            is_truncated=is_truncated,
+            clinical_summary_mode=clinical_summary_mode,
         )
 
     return render_template("index.html")
@@ -212,6 +224,7 @@ def onlabel():
     if request.method == "POST":
         query = request.form["question"]  # get question from user
         drug_name = request.form["drug_name"]
+        collection_name = request.form["collection_name"]
 
         # send question to GalenAI server
         url = f"{BASE_URL}/api/v1/create-onlabel-streaming-channel/"
@@ -220,6 +233,8 @@ def onlabel():
             "query": query,
             "drug_name": drug_name,
         }
+        if collection_name:
+            payload.update({"collection_name": collection_name})
 
         token = f"token {TOKEN}"  # your token here
         headers = {"Authorization": token, "Content-Type": "application/json"}
@@ -227,7 +242,7 @@ def onlabel():
 
         # by default, GalenAI will not process queries outside of scope of the model.
         if response.status_code != 200:
-            return render_template("onlabel.html", error=response.json()["detail"])
+            return render_template("onlabel.html", error=response.json())
 
         # get a channel_name where generated text will be sent too as SSE (server sent events) as they become ready immmediately
         # Each request is a new channel_name generated on the fly.
@@ -252,19 +267,24 @@ def med_review():
     if request.method == "POST":
         # codes = request.form["codes"]  endpoint accept codes or diseases, but not both
         # codes = [code.strip().upper() for code in codes.split(",")]
-        diseaes = request.form["diseases"]
+        diseases = request.form["diseases"]
         # turn diseases to list
-        diseaes = [disease.strip().lower() for disease in diseaes.split(",")]
+        diseases = [disease.strip().lower() for disease in diseases.split(",")]
 
         drugs = request.form["drugs"]
         # turn drugs to list
         drugs = [drug.strip().lower() for drug in drugs.split(",")]
 
         notes = request.form["notes"]
-        focus = request.form["focus"]
+        focus = request.form.get("focus", None)
+        patient_case = request.form["patient_case"]
         # send question to GalenAI server
         url = f"{BASE_URL}/api/v1/create-med-review-streaming-channel/"
-        payload = {"diseases": diseaes, "drugs": drugs}
+        payload = {"diseases": diseases, "drugs": drugs}
+        if patient_case:
+            payload = {"patient_case": patient_case}
+        else:
+            payload = {"diseases": diseases, "drugs": drugs}
         if notes:
             payload["notes"] = notes
         if focus:
